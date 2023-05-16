@@ -23,4 +23,8 @@ RUN pip install --no-cache-dir 'openshift-client'
 COPY src/maxcert.py /src
 COPY src/cron.py /src
 
+# copy osc stuff
+COPY osc/maxcert_np.yaml /osc/maxcert_np.yaml
+COPY osc/maxcert_svc.yaml /osc/maxcert_svc.yaml
+
 CMD ["/bin/sh", "-c", "python -u cron.py"]
