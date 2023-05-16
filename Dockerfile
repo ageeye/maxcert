@@ -27,4 +27,7 @@ COPY src/cron.py /src
 COPY osc/maxcert_np.yaml /osc/maxcert_np.yaml
 COPY osc/maxcert_svc.yaml /osc/maxcert_svc.yaml
 
+# copy cerbot settings
+COPY bot/certbot.ini /bot/certbot.ini
+
 CMD ["/bin/sh", "-c", "python -u cron.py"]
