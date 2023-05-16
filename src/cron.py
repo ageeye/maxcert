@@ -1,4 +1,4 @@
-import time
+import time, os
 import openshift as oc
 
 print("cron started")
@@ -17,6 +17,6 @@ for project in projects:
             host = data['spec']['host']
             print('-', route.name(), host)
 
-while 1:
-    time.sleep(5 * 60)
+while os.environ['MAXCERT_CRON']=='false':
+    time.sleep(60 * 60)
     print("cron wake up")
