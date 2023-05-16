@@ -1,0 +1,18 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: maxcert-allow-ingress
+  labels:
+    app: maxcert
+    well-known: acme-challenge
+spec:
+  podSelector:
+    matchLabels:
+      app: maxcert
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              network.openshift.io/policy-group: ingress
+  policyTypes:
+    - Ingress
