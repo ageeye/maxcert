@@ -1,6 +1,21 @@
 import time
+import openshift as oc
 
-print("cron init ..")
+print("cron started")
+
+# get projects
+projects = oc.selector('projects').objects()
+
+# get routes
+for project in projects:
+    name = project.name()
+    print("switch to project", name)
+    with oc.project(name):
+        routes = oc.selector('route', labels={'certbot-managed':'true'})
+        for route in routes.objects():
+            data = route.as_dict()
+            host = data['spec']['host']
+            print('-', route.name(), host)
 
 while 1:
     time.sleep(5 * 60)
