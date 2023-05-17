@@ -1,4 +1,5 @@
 FROM docker.io/python:3.11-alpine
+EXPOSE 8080
 WORKDIR /src
 
 # python stuff
