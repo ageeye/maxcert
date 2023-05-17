@@ -1,0 +1,31 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: maxcert-well-known
+parameters:
+- name: NAME
+- name: HOST
+objects:
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    annotations:
+      haproxy.router.openshift.io/timeout: 5m
+    labels:
+      app: maxcert
+      well-known: acme-challenge
+    name: ${NAME}
+  spec:
+    host: ${HOST}
+    path: /.well-known/acme-challenge/
+    port:
+      targetPort: http
+    tls:
+      insecureEdgeTerminationPolicy: Allow
+      termination: edge
+    to:
+      kind: Service
+      name: maxcert
+      weight: 100
+    wildcardPolicy: None
