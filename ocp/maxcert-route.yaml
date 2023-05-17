@@ -26,6 +26,6 @@ objects:
       termination: edge
     to:
       kind: Service
-      name: maxcert
+      name: maxcert-service
       weight: 100
     wildcardPolicy: None
