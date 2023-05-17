@@ -23,9 +23,10 @@ RUN pip install --no-cache-dir 'openshift-client'
 COPY src/maxcert.py /src
 COPY src/cron.py /src
 
-# copy osc stuff
-COPY osc/maxcert_np.yaml /osc/maxcert_np.yaml
-COPY osc/maxcert_svc.yaml /osc/maxcert_svc.yaml
+# copy ocp stuff
+COPY ocp/maxcert_np.yaml /ocp/maxcert_np.yaml
+COPY ocp/maxcert_svc.yaml /ocp/maxcert_svc.yaml
+COPY ocp/maxcert-route.yaml /ocp/maxcert-route.yaml
 
 # copy cerbot settings
 COPY bot/certbot.ini /bot/certbot.ini
