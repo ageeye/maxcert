@@ -11,7 +11,7 @@ for project in projects:
     name = project.name()
     print("switch to project", name)
     with oc.project(name):
-        routes = oc.selector('route', labels={'certbot-managed':'true'})
+        routes = oc.selector('route', labels={'maxcert-managed':'true'})
         for route in routes.objects():
             data = route.as_dict()
             host = data['spec']['host']
