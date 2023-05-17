@@ -5,7 +5,7 @@ metadata:
   labels:
     app: maxcert
     well-known: acme-challenge
-  name: maxcert
+  name: maxcert-service
 spec:
   ports:
     - name: http
