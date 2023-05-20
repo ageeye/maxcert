@@ -18,10 +18,12 @@ class Route:
         return cls.routes
 
     @classmethod
-    def writeHostFile(cls,filename='/tmp/maxcert-hosts.txt'):
+    def writeHostFile(cls, filename='/tmp/maxcert-hosts.txt'):
         f = open(filename, 'w')
-        for route in Route.all():
-            f.write(route.host)
+        routes = [r.host for r in Route.all()]
+        routes = set(routes)
+        for route in routes:
+            f.write(route)
             f.write(os.linesep)
         f.truncate(f.tell() - len(os.linesep))
         f.close()    
@@ -31,6 +33,11 @@ class Route:
         self.route = route
         self.host = host
         Route.add(self)
+
+    def save(self, filename='/tmp/maxcert-tmphost.txt'):
+        f = open(filename, 'w')
+        f.write(self.host)
+        f.close()   
 
 class Project:
 
