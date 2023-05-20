@@ -1,28 +1,26 @@
-import time, os
-import openshift as oc
-import maxcert as mc
+import time
+from maxcert import Project, Route, Environment
 
 print("cron started")
 
 # get projects
-base = os.environ['MAXCERT_PROJECT']
-projects = oc.selector('projects').names()
+base = Environment.get('MAXCERT_PROJECT')
+projects = Project.init()
 projects.remove(base)
 
 # get routes
 for project in projects:
-    print("switch to project", project)
-    with oc.project(project):
-        routes = oc.selector('route')
-        for route in routes.objects():
+    print('switch to project', project)
+    with Project.select(project):
+        for route in Route.fetch():
             data = route.as_dict()
             name = route.name()
             host = data['spec']['host']
-            mc.Route(project, name, host)
+            Route(project, name, host)
             print('-', name, host)
 
-mc.Routes.writeHostFile()
+Route.writeHostFile()
 
-while os.environ['MAXCERT_CRON']=='false':
+while Environment.get('MAXCERT_CRON')=='false':
     time.sleep(60 * 60)
     print("cron wake up")
