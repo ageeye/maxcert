@@ -1,5 +1,5 @@
 import time
-from maxcert import Project, Route, Environment
+from maxcert import Project, Route, Environment, AcmeChallenge
 
 print("cron started")
 
@@ -20,6 +20,15 @@ for project in projects:
             print('-', name, host)
 
 Route.writeHostFile()
+
+"""
+# route = Route.all()[0]
+for route in Route.all():
+    route.setTmpHost()
+
+for route in Route.all():
+    route.restoreHost()
+"""
 
 while Environment.get('MAXCERT_CRON')=='false':
     time.sleep(60 * 60)
