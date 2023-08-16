@@ -8,7 +8,14 @@ base = Environment.get('MAXCERT_PROJECT')
 projects = Project.init()
 projects.remove(base)
 
+# set email
+if Environment.has('MAXCERT_MAIL'):
+    mail = Environment.get('MAXCERT_MAIL')
+    with open('/bot/certbot.ini', 'a') as fd:
+        fd.write(f'email = {mail}\n')
+
 # get routes
+Route.cleanHostFiles(cls)
 for project in projects:
     print('switch to project', project)
     with Project.select(project):
@@ -18,17 +25,21 @@ for project in projects:
             host = data['spec']['host']
             Route(project, name, host)
             print('-', name, host)
+        Route.writeHostFile(project)
 
-Route.writeHostFile()
 
-"""
-# route = Route.all()[0]
-for route in Route.all():
-    route.setTmpHost()
-
-for route in Route.all():
-    route.restoreHost()
-"""
+for project in projects:
+    print('switch to project', project)
+    for route in Route.all(project):
+        route.setTmpHost()  
+        
+    acme = AcmeChallenge(base, project)
+    acme.start()
+    acme.getcert()
+    acme.cleanup()
+        
+    for route in Route.all(project):
+        route.restoreHost()
 
 while Environment.get('MAXCERT_CRON')=='false':
     time.sleep(60 * 60)

@@ -3,43 +3,50 @@ import openshift as oc
 
 class Route:
 
-    routes = []
+    routes = {}
+    csv = {}
 
     @classmethod
     def fetch(cls):
         return oc.selector('route').objects()
    
     @classmethod
-    def add(cls, route):
-        cls.routes.append(route)
+    def add(cls, route, project):
+        if project not in cls.routes:
+           cls.routes[project] = [] 
+        cls.routes[project].append(route)
 
     @classmethod
-    def all(cls):
-        return cls.routes
+    def all(cls, project):
+        return cls.routes[project]
+        
+     
+    @classmethod
+    def cleanHostFiles(cls):    
+        os.system('rm /tmp/*')
 
     @classmethod
-    def writeHostFile(cls, filename='/tmp/maxcert-hosts'):
+    def writeHostFile(cls, project, filename='/tmp/hosts_'):
+        filename = filename + project
         filetype = {'txt': os.linesep, 'csv': ','}
         for suffix in filetype:
-            f = open(filename + '.' + suffix, 'w')
-            routes = [r.host for r in Route.all()]
+            f = open(filename + '.' + suffix, 'a+')
+            routes = [r.host for r in Route.all(project)]
             routes = set(routes)
             for route in routes:
                 f.write(route)
                 f.write(filetype[suffix])
             f.truncate(f.tell() - len(filetype[suffix]) )
+            if (suffix=='csv'):
+                f.seek(0)
+                cls.csv[project] = f.read()
             f.close()    
     
     def __init__(self, project, route, host):
         self.project = project
         self.route = route
         self.host = host
-        Route.add(self)
-
-    def save(self, filename='/tmp/maxcert-tmphost.txt'):
-        f = open(filename, 'w')
-        f.write(self.host)
-        f.close()
+        Route.add(self, project)
 
     def setHost(self, host):
         with oc.project(self.project):
@@ -86,17 +93,33 @@ class Environment:
     @classmethod
     def get(cls, name):
         return os.environ[name]
+        
+    @classmethod
+    def has(cls, name):
+        return name in os.environ
 
 class AcmeChallenge:
 
-    @classmethod
-    def start(cls, project):
-        os.system('oc project ' + project)
-        os.system('oc create -f /ocp/maxcert_np.yaml')
-        os.system('oc create -f /ocp/maxcert_svc.yaml')
-        os.system("cat /tmp/maxcert-hosts.txt | xargs -n 1 -I {} oc process -f /ocp/maxcert-route.yaml -p 'NAME=acme-challenge-{}' -p 'HOST={}' | oc create -f -")
+    def __init__(self, base, project):
+        self.base = base
+        self.project = project  
+        
+    def cmd(self, c):
+        os.system(c)
+        
+    def setBase(self):
+        self.cmd('oc project ' + self.base)      
 
-    @classmethod
-    def cleanup(cls, project):
-        os.system('oc project ' + project)
-        os.system('oc delete route,svc,networkpolicy -l app=maxcert,well-known=acme-challenge')
+    def start(self):
+        self.setBase()
+        self.cmd('oc create -f /ocp/maxcert_np.yaml')
+        self.cmd('oc create -f /ocp/maxcert_svc.yaml')
+        self.cmd("cat /tmp/hosts_"+self.project+".txt | xargs -n 1 -I {} oc process -f /ocp/maxcert-route.yaml -p 'NAME=acme-challenge-{}' -p 'HOST={}' | oc create -f -")
+
+    def getcert(self):
+        self.setBase()
+        self.cmd("certbot --config /bot/certbot.ini certonly --server https://acme-v02.api.letsencrypt.org/directory --allow-subset-of-names --non-interactive --keep-until-expiring --cert-name " + self.project + " --expand --standalone -d " + Route.csv[self.project])
+
+    def cleanup(self):
+        self.setBase()
+        self.cmd('oc delete route,svc,networkpolicy -l app=maxcert,well-known=acme-challenge')
