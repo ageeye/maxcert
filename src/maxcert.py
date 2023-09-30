@@ -20,7 +20,12 @@ class Route:
     def all(cls, project):
         return cls.routes[project]
         
-     
+    @classmethod
+    def setENV(cls, project):
+        self.cmd('CERTIFICATE="$(awk \'{printf "%s\\n", $0}\' ' + '/etc/letsencrypt/live/'+project+'/cert.pem)')
+        self.cmd('KEY="$(awk \'{printf "%s\\n", $0}\' ' + '/etc/letsencrypt/live/'+project+'/privkey.pem)')
+        self.cmd('CABUNDLE="$(awk \'{printf "%s\\n", $0}\' ' + '/etc/letsencrypt/live/'+project+'/fullchain.pem)')
+        
     @classmethod
     def cleanHostFiles(cls):    
         os.system('rm /tmp/*')
@@ -59,6 +64,14 @@ class Route:
 
     def restoreHost(self):
         self.setHost(self.host)
+        
+    def cmd(self, c):
+        os.system(c)
+        
+    def patchRoute(self):
+        self.cmd("oc patch \"route/"+self.route+"\" -p '{\"spec\":{\"tls\":{\"certificate\":\"'\"${CERTIFICATE}\"'\",\"key\":\"'\"${KEY}\"'\",\"caCertificate\":\"'\"${CABUNDLE}\"'\"}}}'")
+
+        
 
 class Project:
 
