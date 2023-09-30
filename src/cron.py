@@ -15,7 +15,7 @@ if Environment.has('MAXCERT_MAIL'):
         fd.write(f'email = {mail}\n')
 
 # get routes
-Route.cleanHostFiles(cls)
+Route.cleanHostFiles()
 for project in projects:
     print('switch to project', project)
     with Project.select(project):
