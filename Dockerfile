@@ -12,7 +12,8 @@ RUN apk add --no-cache --virtual certbot-build gcc libc-dev libffi-dev \
  
 # get oc
 RUN apk add --no-cache --virtual oc-build wget tar \
- && wget -qO- --no-check-certificate https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-4.12/openshift-client-linux.tar.gz | tar -zxvf - -C /usr/local/bin \
+ && wget -qO- --no-check-certificate https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-4.14/openshift-client-linux.tar.gz | tar -zxvf - -C /usr/local/bin \
+                                    
  && apk del oc-build
  
 # clean up
