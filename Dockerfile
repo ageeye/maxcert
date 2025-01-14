@@ -6,7 +6,7 @@ WORKDIR /src
 RUN apk add --no-cache bash gcompat py3-setuptools
 RUN apk add --no-cache --virtual certbot-build gcc libc-dev libffi-dev \
  && pip install --no-cache-dir --upgrade pip wheel \
- && pip install --no-cache-dir 'certbot==2.6.0' \
+ && pip install --no-cache-dir 'certbot==2.11.0' \
  && certbot --version \
  && apk del certbot-build
  
