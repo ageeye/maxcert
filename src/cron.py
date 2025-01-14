@@ -1,22 +1,43 @@
 import time
 from maxcert import Project, Route, Environment, AcmeChallenge
 
-if not Environment.get('MAXCERT_MODE')=='debug':
+def getProjects(base):
+    """
+    Retrieve a list of projects, excluding the specified base project.
 
-    print("cron started")
+    Args:
+        base (str): The base project to be excluded from the list.
 
-    # get projects
-    base = Environment.get('MAXCERT_PROJECT')
+    Returns:
+        list: A list of projects excluding the base project.
+    """
     projects = Project.init()
-    projects.remove(base)
+    if base in projects:
+        projects.remove(base)
+    return projects    
 
-    # set email
-    if Environment.has('MAXCERT_MAIL'):
-        mail = Environment.get('MAXCERT_MAIL')
-        with open('/bot/certbot.ini', 'a') as fd:
-            fd.write(f'email = {mail}\n')
+def setMail():
+    """
+    Set the email address for the certificate.
 
-    # get routes
+    Returns:
+        str: The email address for the certificate.
+    """
+    mail = Environment.get('MAXCERT_MAIL')
+    with open('/bot/certbot.ini', 'a') as fd:
+        fd.write(f'email = {mail}\n')
+    return mail
+
+def getRoutes(projects):
+    """
+    Processes a list of projects to fetch and handle route information.
+
+    Args:
+        projects (list): A list of project names to process.
+
+    Returns:
+        None
+    """
     Route.cleanHostFiles()
     for project in projects:
         print('switch to project', project)
@@ -29,7 +50,17 @@ if not Environment.get('MAXCERT_MODE')=='debug':
                 print('-', name, host)
             Route.writeHostFile(project)
 
+if not Environment.get('MAXCERT_MODE')=='debug':
 
+    print("cron started")
+
+    base = Environment.get('MAXCERT_PROJECT')
+    projects = getProjects(base)
+
+    setMail()
+    getRoutes(projects)
+
+    # ToDo: code review
     for project in projects:
         print('switch to project', project)
         for route in Route.all(project):
