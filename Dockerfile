@@ -13,7 +13,6 @@ RUN apk add --no-cache --virtual certbot-build gcc libc-dev libffi-dev \
 # get oc
 RUN apk add --no-cache --virtual oc-build wget tar \
  && wget -qO- --no-check-certificate https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-4.14/openshift-client-linux.tar.gz | tar -zxvf - -C /usr/local/bin \
-                                    
  && apk del oc-build
  
 # clean up
@@ -23,13 +22,10 @@ RUN rm -rf /var/cache/apk/*
 RUN pip install --no-cache-dir 'openshift-client==2.0.5'
 
 # copy scripts
-COPY src/maxcert.py /src
-COPY src/cron.py /src
+COPY src/*.py /src/
 
 # copy ocp stuff
-COPY ocp/maxcert_np.yaml /ocp/maxcert_np.yaml
-COPY ocp/maxcert_svc.yaml /ocp/maxcert_svc.yaml
-COPY ocp/maxcert-route.yaml /ocp/maxcert-route.yaml
+COPY ocp/*.yaml /ocp/
 
 # copy cerbot settings
 COPY bot/certbot.ini /bot/certbot.ini
