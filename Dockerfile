@@ -19,7 +19,8 @@ RUN apk add --no-cache --virtual oc-build wget tar \
 # clean up
 RUN rm -rf /var/cache/apk/*
  
-RUN pip install --no-cache-dir 'openshift-client'
+# get openshift-client library for python
+RUN pip install --no-cache-dir 'openshift-client==2.0.5'
 
 # copy scripts
 COPY src/maxcert.py /src
