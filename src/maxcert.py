@@ -1,5 +1,5 @@
 import os
-import openshift as oc
+import openshift_client as oc
 
 class Route:
 
